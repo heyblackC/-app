@@ -1,0 +1,12 @@
+{
+    "logs": [
+        {
+            "outputFile": "/usr/local/var/www/php/android/InteractiveOpenCVApp/openCVLibrary24136/build/intermediates/res/merged/release/values/values.xml",
+            "map": []
+        },
+        {
+            "outputFile": "/usr/local/var/www/php/android/InteractiveOpenCVApp/openCVLibrary24136/build/intermediates/incremental/mergeReleaseResources/merged.dir/values/values.xml",
+            "map": []
+        }
+    ]
+}

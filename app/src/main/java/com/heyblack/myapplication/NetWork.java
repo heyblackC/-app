@@ -22,7 +22,7 @@ public class NetWork {
     /**
      * 网络操作相关的子线程
      */
-    public void getwebinfo(Map<String,String> params, Handler handler){
+    public void getwebinfo(String urlPath, Map<String,String> params, Handler handler){
 
         String str = "";
 
@@ -31,7 +31,7 @@ public class NetWork {
         // 在这里进行 http request.网络请求相关操作
         try{
 
-            URL url = new URL("https://www.elight2016.cn/androidWork/login.php" );
+            URL url = new URL(urlPath);
 
             conn = (HttpURLConnection) url.openConnection();
             conn.setRequestMethod("POST");

@@ -4,15 +4,21 @@ import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.os.Bundle;
 import android.os.Environment;
+import android.os.Handler;
+import android.os.Message;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
+import android.util.Base64;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
 import android.widget.Button;
 import android.widget.ImageView;
 
+import java.io.ByteArrayOutputStream;
 import java.io.File;
+import java.util.HashMap;
+import java.util.Map;
 
 public class MainActivity extends AppCompatActivity {
 
@@ -69,6 +75,22 @@ public class MainActivity extends AppCompatActivity {
         return super.onOptionsItemSelected(item);
     }
 
+    //用来处理上传图片的返回
+    Handler handler = new Handler() {
+
+        @Override
+        public void handleMessage(Message msg) {
+            super.handleMessage(msg);
+            Bundle data = msg.getData();
+            String val = data.getString("value");
+            // UI界面的更新等相关操作
+            Draw1.resultMap = base64ToBitmap(val);
+            if (Draw1.imageView != null) {
+                Draw1.imageView.setImageBitmap(Draw1.resultMap);
+            }
+        }
+    };
+
 
     private void inite(){
         Draw1=(DrawView)findViewById(R.id.writting);
@@ -84,11 +106,13 @@ public class MainActivity extends AppCompatActivity {
                 underView.setImageBitmap(bitmap);
                 Draw1.bringToFront();
                 Draw1.rawImg = bitmap;
+                Draw1.resultMap = bitmap;
                 Draw1.imageView = img;
 
                 //getPhoto();
             }
         });
+
         btn2 = (Button)findViewById(R.id.button2);
         btn2.setOnClickListener(new View.OnClickListener() {
 
@@ -96,8 +120,24 @@ public class MainActivity extends AppCompatActivity {
             public void onClick(View v) {
                 // TODO Auto-generated method stub
                 Draw1.changeSta(2);
+
+                String img = bitmapToBase64(Draw1.resultMap);
+
+                final String url = "http://120.79.67.94/finalversion.php";
+                final Map<String,String> params = new HashMap<>();
+                params.put("img",img);
+
+                new Thread(new Runnable() {//创建子线程
+                    @Override
+                    public void run() {
+                        NetWork netWork = new NetWork();
+                        netWork.getwebinfo(url,params,handler);//把路径选到MainActivity中
+                    }
+                }).start();//启动子线程
+
             }
         });
+
 
 
 
@@ -149,5 +189,30 @@ public class MainActivity extends AppCompatActivity {
         }
     }
 
+    /**
+     * 将Bitmap转换成Base64
+     * @param bit
+     * @return
+     */
+    private String bitmapToBase64(Bitmap bit)
+    {
+        ByteArrayOutputStream bos=new ByteArrayOutputStream();
+        bit.compress(Bitmap.CompressFormat.JPEG, 40, bos);//参数100表示不压缩
+        byte[] bytes=bos.toByteArray();
+        return Base64.encodeToString(bytes, Base64.DEFAULT);
+    }
+
+    /**
+     * 将Base64转换成Bitmap
+     * @param base64String
+     * @return
+     */
+    public static Bitmap base64ToBitmap(String base64String) {
+
+        byte[] decode = Base64.decode(base64String, Base64.DEFAULT);
+        Bitmap bitmap = BitmapFactory.decodeByteArray(decode, 0, decode.length);
+
+        return bitmap;
+    }
 
 }
