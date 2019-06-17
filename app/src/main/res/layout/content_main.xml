@@ -53,12 +53,14 @@
         <!-- 画板 -->
 
         <com.heyblack.myapplication.DrawView
-                android:id="@+id/writting2"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:layout_weight="1"
-                android:background="#00FFFFFF"
-                app:layout_constraintTop_toBottomOf="@+id/imageView1"></com.heyblack.myapplication.DrawView>
+
+            android:id="@+id/writting2"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:background="#00FFFFFF"
+            android:clickable="false"
+            app:layout_constraintTop_toBottomOf="@+id/imageView1"></com.heyblack.myapplication.DrawView>
 
 
         <com.heyblack.myapplication.DrawView
