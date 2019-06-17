@@ -11,3 +11,6 @@
 /openCVLibrary24136/build/tmp
 /captures
 .externalNativeBuild
+!/openCVLibrary24136/build/intermediates/manifest
+/openCVLibrary24136/build/intermediates/
+/build.gradle
