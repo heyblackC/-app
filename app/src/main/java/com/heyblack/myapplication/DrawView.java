@@ -34,6 +34,7 @@ public class DrawView  extends View{
     public Bitmap resultMap;
     public ImageView imageView;
     private boolean isTouchEnd = false;
+    public boolean dummy=false;
 
 
 
@@ -112,6 +113,9 @@ public class DrawView  extends View{
     private float stopY = 0;
     @Override
     public boolean onTouchEvent(MotionEvent event) {
+        if(dummy==true){
+            return true;
+        }
         // TODO Auto-generated method stub
         if(sta1==0){
             int action=event.getAction();
@@ -167,7 +171,7 @@ public class DrawView  extends View{
                     mCanvas.drawLine(stopX, startY, stopX, stopY, paint);
                     isTouchEnd = true;
                     invalidate();
-
+//                    onDrawImage( startX, startY, stopX, stopY);
                     break;
                 default:
                     break;
@@ -183,16 +187,33 @@ public class DrawView  extends View{
         super.onDraw(canvas);
 //		mCanvas.drawLine(startX, startY, stopX, stopY, paint);
         canvas.drawBitmap(mBitmap,0 , 0, null);
+
+
+    }
+
+    public void onDrawImage(){
         if (isTouchEnd) {
             isTouchEnd = false;
-            resultMap = beginGrabcut(rawImg, startX, startY, stopX, stopY);
+//            double widtht1 = imageView.getWidth();
+//            double height1 imageView.getHeight();
+//            double width2 =  getWidth();
+//            double height2 = getHeight();
+//            WindowManager.LayoutParams lp = getLayoutParams().getAttributes();
+            double ratio = (double) rawImg.getWidth()/(double) rawImg.getHeight();
+            double tranStartX = startX - (getWidth()- getHeight()*ratio)/2.0;
+            double tranStartY = getY() - startY;
+            double tranEndX = stopX - (getWidth()- getHeight()*ratio)/2.0;
+            double tranEndY = getY() - stopY;
+            resultMap = beginGrabcut(rawImg,
+                    tranStartX,
+                    startY,
+                    tranEndX,
+                    stopY);
 
             if (imageView != null) {
                 imageView.setImageBitmap(resultMap);
             }
         }
-
-
     }
 
     private Bitmap beginGrabcut(Bitmap bitmap, double beginX, double beginY, double endX, double endY)
