@@ -31,7 +31,7 @@ public class MainActivity extends AppCompatActivity {
     private Button btn5 = null;
     private Button confirmBtn = null;
     private ImageView underView = null;
-    public Bitmap bitmap=BitmapFactory.decodeStream(getClass().getResourceAsStream("/res/drawable/l729.png"));
+    public Bitmap bitmap=BitmapFactory.decodeStream(getClass().getResourceAsStream("/res/drawable/l58.png"));
 
     ImageView img;
     String path;

@@ -201,14 +201,12 @@ public class DrawView  extends View{
 //            WindowManager.LayoutParams lp = getLayoutParams().getAttributes();
             double ratio = (double) rawImg.getWidth()/(double) rawImg.getHeight();
             double tranStartX = startX - (getWidth()- getHeight()*ratio)/2.0;
-            double tranStartY = getY() - startY;
             double tranEndX = stopX - (getWidth()- getHeight()*ratio)/2.0;
-            double tranEndY = getY() - stopY;
             resultMap = beginGrabcut(rawImg,
-                    tranStartX,
-                    startY,
-                    tranEndX,
-                    stopY);
+                    tranStartX/((double)getHeight()/(double)rawImg.getHeight()),
+                    startY/((double)getHeight()/(double)rawImg.getHeight()),
+                    tranEndX/((double)getHeight()/(double)rawImg.getHeight()),
+                    stopY/((double)getHeight()/(double)rawImg.getHeight()));
 
             if (imageView != null) {
                 imageView.setImageBitmap(resultMap);
