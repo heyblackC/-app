@@ -29,8 +29,9 @@ public class MainActivity extends AppCompatActivity {
     private Button btn3 = null;
     private Button btn4 = null;
     private Button btn5 = null;
+    private Button confirmBtn = null;
     private ImageView underView = null;
-    public Bitmap bitmap=BitmapFactory.decodeStream(getClass().getResourceAsStream("/res/drawable/l729.jpg"));
+    public Bitmap bitmap=BitmapFactory.decodeStream(getClass().getResourceAsStream("/res/drawable/l729.png"));
 
     ImageView img;
     String path;
@@ -153,6 +154,16 @@ public class MainActivity extends AppCompatActivity {
                 Draw1.changeSta(2);
             }
         });
+
+        confirmBtn = findViewById(R.id.confirm);
+        confirmBtn.setOnClickListener(new View.OnClickListener() {
+
+            @Override
+            public void onClick(View v) {
+                Draw1.onDrawImage();
+            }
+        });
+
         btn4 = (Button)findViewById(R.id.button4);
         btn4.setOnClickListener(new View.OnClickListener() {
 

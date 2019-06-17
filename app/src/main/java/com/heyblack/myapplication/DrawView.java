@@ -167,7 +167,7 @@ public class DrawView  extends View{
                     mCanvas.drawLine(stopX, startY, stopX, stopY, paint);
                     isTouchEnd = true;
                     invalidate();
-                    onDrawImage( startX, startY, stopX, stopY);
+//                    onDrawImage( startX, startY, stopX, stopY);
                     break;
                 default:
                     break;
@@ -187,10 +187,24 @@ public class DrawView  extends View{
 
     }
 
-    private void onDrawImage(float startX,float startY,float stopX,float stopY){
+    public void onDrawImage(){
         if (isTouchEnd) {
             isTouchEnd = false;
-            resultMap = beginGrabcut(rawImg, startX, startY, stopX, stopY);
+//            double widtht1 = imageView.getWidth();
+//            double height1 imageView.getHeight();
+//            double width2 =  getWidth();
+//            double height2 = getHeight();
+//            WindowManager.LayoutParams lp = getLayoutParams().getAttributes();
+            double ratio = (double) rawImg.getWidth()/(double) rawImg.getHeight();
+            double tranStartX = startX - (getWidth()- getHeight()*ratio)/2.0;
+            double tranStartY = getY() - startY;
+            double tranEndX = stopX - (getWidth()- getHeight()*ratio)/2.0;
+            double tranEndY = getY() - stopY;
+            resultMap = beginGrabcut(rawImg,
+                    tranStartX,
+                    startY,
+                    tranEndX,
+                    stopY);
 
             if (imageView != null) {
                 imageView.setImageBitmap(resultMap);
