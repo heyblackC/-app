@@ -35,6 +35,9 @@ public class MainActivity extends AppCompatActivity {
     private ImageView underView = null;
     public Bitmap bitmap=BitmapFactory.decodeStream(getClass().getResourceAsStream("/res/drawable/l58.png"));
 
+    private int mode = 0;
+
+
     ImageView img;
     String path;
     String filepath;
@@ -153,8 +156,9 @@ public class MainActivity extends AppCompatActivity {
             @Override
             public void onClick(View v) {
                 // TODO Auto-generated method stub
-                Draw1.setcolor(Color.BLACK);
+                Draw1.setcolor(Color.RED);
                 Draw1.changeSta(2);
+                mode = 0;
             }
         });
 
@@ -163,7 +167,16 @@ public class MainActivity extends AppCompatActivity {
 
             @Override
             public void onClick(View v) {
-                Draw1.onDrawImage();
+                //开始切图
+                switch (mode)
+                {
+                    case 0:
+                        Draw1.onDrawImage();
+                        break;
+                    case 1:
+                        Draw1.beginManualOperate();
+                        break;
+                }
             }
         });
 
@@ -175,6 +188,7 @@ public class MainActivity extends AppCompatActivity {
                 // TODO Auto-generated method stub
                 Draw1.setcolor(Color.BLACK);
                 Draw1.changeSta(0);
+                mode = 1;
             }
         });
         btn5 = (Button)findViewById(R.id.button5);
@@ -183,8 +197,9 @@ public class MainActivity extends AppCompatActivity {
             @Override
             public void onClick(View v) {
                 // TODO Auto-generated method stub
-                Draw1.setcolor(Color.GRAY);
+                Draw1.setcolor(Color.WHITE);
                 Draw1.changeSta(0);
+                mode = 1;
             }
         });
         btn6 = (Button)findViewById(R.id.button6);
