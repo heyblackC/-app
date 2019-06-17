@@ -1,12 +1,17 @@
 package com.heyblack.myapplication;
 
+import android.content.Intent;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
+import android.graphics.Camera;
 import android.graphics.Color;
+import android.net.Uri;
 import android.os.Bundle;
 import android.os.Environment;
 import android.os.Handler;
 import android.os.Message;
+import android.os.StrictMode;
+import android.provider.MediaStore;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
 import android.util.Base64;
@@ -33,6 +38,7 @@ public class MainActivity extends AppCompatActivity {
     private Button btn6 = null;
     private Button confirmBtn = null;
     private ImageView underView = null;
+    private int countNum = 0;
     public Bitmap bitmap=BitmapFactory.decodeStream(getClass().getResourceAsStream("/res/drawable/l58.png"));
 
     ImageView img;
@@ -116,6 +122,13 @@ public class MainActivity extends AppCompatActivity {
                 Draw1.imageView = img;
 
                 //getPhoto();
+
+                //if(countNum==2){
+                //   countNum=0;
+                //    getPhoto1();
+                //}else {
+                //    countNum++;
+                //}
             }
         });
 
@@ -216,6 +229,82 @@ public class MainActivity extends AppCompatActivity {
             System.err.println("<<<<<<<<<<<<<404 Not Find");//控制台输出没找到图片
         }
     }
+
+    private void getPhoto1(){
+        Intent intent2 = new Intent(Intent.ACTION_PICK, null);
+        intent2.setDataAndType(MediaStore.Images.Media.EXTERNAL_CONTENT_URI, "image/*");
+        //intent2.putExtra(MediaStore.EXTRA_OUTPUT, Uri.fromFile(new File(Environment.getExternalStorageDirectory()+change_path
+        //        ,"temp.jpg")));
+        startActivityForResult(intent2, 2);
+        Uri data = intent2.getData();
+        if (data != null) {
+            //Draw1.setImageURI(data);
+            //underView.setImageURI(data);
+            //startPhotoZoom(intent2.getData());
+
+            Bundle extras = intent2.getExtras();
+
+                Bitmap photo = extras.getParcelable("data");
+                ByteArrayOutputStream stream = new ByteArrayOutputStream();
+                img.setImageBitmap(photo); //把图片显示在ImageView控件上
+
+        }
+    }
+
+    protected void onActivityResult(int requestCode, int resultCode, Intent data) {
+        if (resultCode == 0)
+            return;
+        // 拍照
+        if (requestCode == 1) {
+            // 设置文件保存路径
+            String change_path = "";
+            String filePath = Environment.getExternalStorageDirectory()+change_path;
+            File localFile = new File(filePath);
+            if (!localFile.exists()) {
+                localFile.mkdir();
+            }
+            File picture = new File(Environment.getExternalStorageDirectory()+change_path
+                    + "/temp.jpg");
+            startPhotoZoom(Uri.fromFile(picture));
+        }
+        if (data == null)
+            return;
+        // 读取相册缩放图片
+        if (requestCode == 1) {
+            startPhotoZoom(data.getData());
+        }
+        // 处理结果
+        if (requestCode == 2) {
+            Bundle extras = data.getExtras();
+            if (extras != null) {
+                Bitmap photo = extras.getParcelable("data");
+                ByteArrayOutputStream stream = new ByteArrayOutputStream();
+                photo.compress(Bitmap.CompressFormat.JPEG, 75, stream);// (0-100)压缩文件
+                //此处可以把Bitmap保存到sd卡中
+                img.setImageBitmap(photo); //把图片显示在ImageView控件上
+            }
+        }
+        super.onActivityResult(requestCode, resultCode, data);
+    }
+    /**
+     * 收缩图片
+     *
+     * @param uri
+     */
+    public void startPhotoZoom(Uri uri) {
+        Intent intent = new Intent("com.android.camera.action.CROP");
+        intent.setDataAndType(uri, "image/*");
+        intent.putExtra("crop", "true");
+        // aspectX aspectY 是宽高的比例
+        intent.putExtra("aspectX", 1);
+        intent.putExtra("aspectY", 1);
+        // outputX outputY 是裁剪图片宽高
+        intent.putExtra("outputX", 300);
+        intent.putExtra("outputY", 500);
+        intent.putExtra("return-data", true);
+        startActivityForResult(intent, 3);
+    }
+
 
     /**
      * 将Bitmap转换成Base64
