@@ -23,6 +23,7 @@ import java.util.Map;
 public class MainActivity extends AppCompatActivity {
 
     private DrawView Draw1 = null;//画板视图
+    private DrawView Draw2 = null;//画板视图dummy
     private Button btn1 = null;
     private Button btn2 = null;
     private Button btn3 = null;
@@ -41,6 +42,7 @@ public class MainActivity extends AppCompatActivity {
         setContentView(R.layout.activity_main);
         Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
+
         underView = findViewById(R.id.imageView);
 
 
@@ -94,6 +96,7 @@ public class MainActivity extends AppCompatActivity {
 
     private void inite(){
         Draw1=(DrawView)findViewById(R.id.writting);
+        Draw2=(DrawView)findViewById(R.id.writting2);
 
 
         btn1 = (Button)findViewById(R.id.button1);
@@ -165,7 +168,7 @@ public class MainActivity extends AppCompatActivity {
             @Override
             public void onClick(View v) {
                 // TODO Auto-generated method stub
-
+                Draw1.clearall();
             }
         });
     }
