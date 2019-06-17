@@ -1,5 +1,6 @@
 package com.heyblack.myapplication;
 
+import android.content.DialogInterface;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.graphics.Color;
@@ -7,6 +8,7 @@ import android.os.Bundle;
 import android.os.Environment;
 import android.os.Handler;
 import android.os.Message;
+import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
 import android.util.Base64;
@@ -15,11 +17,16 @@ import android.view.MenuItem;
 import android.view.View;
 import android.widget.Button;
 import android.widget.ImageView;
+import android.widget.Toast;
 
 import java.io.ByteArrayOutputStream;
 import java.io.File;
+import java.io.FileOutputStream;
+import java.io.IOException;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.Random;
+import java.util.UUID;
 
 public class MainActivity extends AppCompatActivity {
 
@@ -39,6 +46,12 @@ public class MainActivity extends AppCompatActivity {
     String path;
     String filepath;
 
+    String interPath = "/data/data/com.heyblack.myapplication/ImgStorage";
+
+    //风格化处理等待提示框、完成提示
+    AlertDialog waitMsg,finishMsg;
+
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -48,12 +61,23 @@ public class MainActivity extends AppCompatActivity {
 
         underView = findViewById(R.id.imageView);
 
+        waitMsg = new AlertDialog.Builder(this)
+                .setTitle("请稍等")
+                .setMessage("正在为您风格化中，可能需要30秒左右的处理时间")
+                .setIcon(R.mipmap.ic_launcher)
+                .setCancelable(false)
+                .create();
+
+        finishMsg = new AlertDialog.Builder(this)
+                .setTitle("完成通知")
+                .setMessage("您的图片风格化已完成")
+                .setIcon(R.mipmap.ic_launcher)
+                .setPositiveButton("确定" ,  null )
+                .create();
+
 
         //图版初始化、设置等操作
         inite();
-
-
-
 
 
     }
@@ -91,7 +115,11 @@ public class MainActivity extends AppCompatActivity {
             // UI界面的更新等相关操作
             Draw1.resultMap = base64ToBitmap(val);
             if (Draw1.imageView != null) {
+
                 Draw1.imageView.setImageBitmap(Draw1.resultMap);
+
+                waitMsg.dismiss();
+                finishMsg.show();
             }
         }
     };
@@ -127,6 +155,7 @@ public class MainActivity extends AppCompatActivity {
                 // TODO Auto-generated method stub
                 Draw1.changeSta(2);
 
+                if (Draw1.resultMap == null) return;
                 String img = bitmapToBase64(Draw1.resultMap);
 
                 final String url = "http://120.79.67.94/finalversion.php";
@@ -140,6 +169,9 @@ public class MainActivity extends AppCompatActivity {
                         netWork.getwebinfo(url,params,handler);//把路径选到MainActivity中
                     }
                 }).start();//启动子线程
+
+
+                waitMsg.show();
 
             }
         });
@@ -196,6 +228,8 @@ public class MainActivity extends AppCompatActivity {
                 Draw1.clearall();
             }
         });
+
+
     }
 
     private  void getPhoto(){
@@ -241,6 +275,35 @@ public class MainActivity extends AppCompatActivity {
         Bitmap bitmap = BitmapFactory.decodeByteArray(decode, 0, decode.length);
 
         return bitmap;
+    }
+
+    //创建文件夹
+    public void createDirectory(){
+
+        File destDir = new File(interPath);
+        if (!destDir.exists()) {
+            destDir.mkdirs();
+
+        }
+    }
+
+    //保存风格化图片
+    public void createImg(String img){
+
+        //通过UUID生成字符串文件名
+        String fileName = UUID.randomUUID().toString() + ".png";
+        try {
+            File file = new File(interPath + fileName);
+            FileOutputStream out = new FileOutputStream(file);
+            base64ToBitmap(img).compress(Bitmap.CompressFormat.PNG, 100, out);
+            out.flush();
+            out.close();
+
+
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+
     }
 
 }
