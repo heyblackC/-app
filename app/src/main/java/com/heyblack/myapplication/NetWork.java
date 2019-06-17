@@ -38,8 +38,8 @@ public class NetWork {
             conn.setDoOutput(true);
             conn.setDoInput(true);
             conn.setUseCaches(false);
-            conn.setConnectTimeout(6 * 1000);
-            conn.setReadTimeout(30000);
+            conn.setConnectTimeout(6 * 10000000);
+            conn.setReadTimeout(30000000);
             conn.setRequestProperty("Connection", "Keep-Alive");
             //设置请求体的类型是文本类型
             conn.setRequestProperty("Content-Type", "application/x-www-form-urlencoded");
