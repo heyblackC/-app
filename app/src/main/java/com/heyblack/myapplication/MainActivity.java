@@ -97,7 +97,7 @@ public class MainActivity extends AppCompatActivity {
     private void inite(){
         Draw1=(DrawView)findViewById(R.id.writting);
         Draw2=(DrawView)findViewById(R.id.writting2);
-
+        Draw2.dummy=true;
 
         btn1 = (Button)findViewById(R.id.button1);
         btn1.setOnClickListener(new View.OnClickListener() {

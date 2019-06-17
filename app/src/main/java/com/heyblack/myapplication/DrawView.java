@@ -34,6 +34,7 @@ public class DrawView  extends View{
     public Bitmap resultMap;
     public ImageView imageView;
     private boolean isTouchEnd = false;
+    public boolean dummy=false;
 
 
 
@@ -112,6 +113,9 @@ public class DrawView  extends View{
     private float stopY = 0;
     @Override
     public boolean onTouchEvent(MotionEvent event) {
+        if(dummy==true){
+            return true;
+        }
         // TODO Auto-generated method stub
         if(sta1==0){
             int action=event.getAction();
