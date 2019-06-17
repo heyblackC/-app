@@ -2,6 +2,7 @@ package com.heyblack.myapplication;
 
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
+import android.graphics.Color;
 import android.os.Bundle;
 import android.os.Environment;
 import android.os.Handler;
@@ -29,9 +30,10 @@ public class MainActivity extends AppCompatActivity {
     private Button btn3 = null;
     private Button btn4 = null;
     private Button btn5 = null;
+    private Button btn6 = null;
     private Button confirmBtn = null;
     private ImageView underView = null;
-    public Bitmap bitmap=BitmapFactory.decodeStream(getClass().getResourceAsStream("/res/drawable/l729.png"));
+    public Bitmap bitmap=BitmapFactory.decodeStream(getClass().getResourceAsStream("/res/drawable/l58.png"));
 
     ImageView img;
     String path;
@@ -151,6 +153,7 @@ public class MainActivity extends AppCompatActivity {
             @Override
             public void onClick(View v) {
                 // TODO Auto-generated method stub
+                Draw1.setcolor(Color.BLACK);
                 Draw1.changeSta(2);
             }
         });
@@ -170,11 +173,22 @@ public class MainActivity extends AppCompatActivity {
             @Override
             public void onClick(View v) {
                 // TODO Auto-generated method stub
+                Draw1.setcolor(Color.BLACK);
                 Draw1.changeSta(0);
             }
         });
         btn5 = (Button)findViewById(R.id.button5);
         btn5.setOnClickListener(new View.OnClickListener() {
+
+            @Override
+            public void onClick(View v) {
+                // TODO Auto-generated method stub
+                Draw1.setcolor(Color.GRAY);
+                Draw1.changeSta(0);
+            }
+        });
+        btn6 = (Button)findViewById(R.id.button6);
+        btn6.setOnClickListener(new View.OnClickListener() {
 
             @Override
             public void onClick(View v) {
