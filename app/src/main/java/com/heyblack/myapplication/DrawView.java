@@ -263,13 +263,18 @@ public class DrawView  extends View{
 
     private Bitmap cropBitmap(Bitmap bitmap) {
         // TODO
-        float ratio = (float) rawImg.getHeight()/(float) getHeight();
-        double wVSh = (double) rawImg.getWidth()/(double) rawImg.getHeight();
-        int w = bitmap.getWidth(); // 得到图片的宽，高
-        int h = bitmap.getHeight();
+        float ratio = (float) rawImg.getHeight()/(float) bitmap.getHeight();
         Matrix matrix = new Matrix();
         matrix.preScale(ratio, ratio);
-        return Bitmap.createBitmap(bitmap, (int)(getWidth()- getHeight()*wVSh)/2, 0, rawImg.getWidth(), rawImg.getHeight(), matrix, false);
+        Bitmap correctRatioMap = Bitmap.createBitmap(bitmap,0,0,bitmap.getWidth(),bitmap.getHeight(), matrix, false);
+        return correctRatioMap;
+        //        double wVSh = (double) rawImg.getWidth()/(double) rawImg.getHeight();
+
+//        int w = bitmap.getWidth(); // 得到图片的宽，高
+//        int h = bitmap.getHeight();
+//        Matrix matrix = new Matrix();
+//        matrix.preScale(ratio, ratio);
+//        return Bitmap.createBitmap(bitmap, (int)(getWidth()- getHeight()*wVSh)/2, 0, rawImg.getWidth(), rawImg.getHeight(), matrix, false);
     }
 
     public void getPoint(Map<String,String> params) {
