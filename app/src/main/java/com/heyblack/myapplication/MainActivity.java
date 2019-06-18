@@ -1,6 +1,7 @@
 package com.heyblack.myapplication;
 
 import android.content.Intent;
+import android.database.Cursor;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.graphics.Color;
@@ -55,6 +56,7 @@ public class MainActivity extends AppCompatActivity {
     //风格化处理等待提示框、完成提示
     AlertDialog waitMsg,finishMsg;
 
+    private static int RESULT_LOAD_IMAGE = 300;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -165,6 +167,12 @@ public class MainActivity extends AppCompatActivity {
                 Draw1.resultMap = bitmap;
                 Draw1.imageView = img;
 
+                Intent i = new Intent(
+                        Intent.ACTION_PICK,
+                        android.provider.MediaStore.Images.Media.EXTERNAL_CONTENT_URI);
+
+                startActivityForResult(i, RESULT_LOAD_IMAGE);
+
                 //getPhoto();
 
                 //if(countNum==2){
@@ -229,17 +237,7 @@ public class MainActivity extends AppCompatActivity {
                 switch (mode)
                 {
                     case 0:
-                        final String url = "http://120.79.67.94/demo.php";
-                        final Map<String,String> params = new HashMap<>();
-                        Draw1.getPoint(params);
-
-                        new Thread(new Runnable() {//创建子线程
-                            @Override
-                            public void run() {
-                                NetWork netWork = new NetWork();
-                                netWork.getwebinfo(url,params,handler2);//把路径选到MainActivity中
-                            }
-                        }).start();//启动子线程
+                        Draw1.onDrawImage();
                         break;
                     case 1:
                         Draw1.beginManualOperate();
@@ -260,7 +258,17 @@ public class MainActivity extends AppCompatActivity {
                 switch (mode)
                 {
                     case 0:
-                        Draw1.onDrawImage();
+                        final String url = "http://120.79.67.94/demo.php";
+                        final Map<String,String> params = new HashMap<>();
+                        Draw1.getPoint(params);
+
+                        new Thread(new Runnable() {//创建子线程
+                            @Override
+                            public void run() {
+                                NetWork netWork = new NetWork();
+                                netWork.getwebinfo(url,params,handler2);//把路径选到MainActivity中
+                            }
+                        }).start();//启动子线程
                         break;
                     case 1:
                         break;
@@ -343,6 +351,7 @@ public class MainActivity extends AppCompatActivity {
         }
     }
 
+    @Override
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {
         if (resultCode == 0)
             return;
@@ -377,6 +386,27 @@ public class MainActivity extends AppCompatActivity {
             }
         }
         super.onActivityResult(requestCode, resultCode, data);
+
+        if (requestCode == RESULT_LOAD_IMAGE && resultCode == RESULT_OK && null != data) {
+            Uri selectedImage = data.getData();
+            String[] filePathColumn = {MediaStore.Images.Media.DATA};
+
+            Cursor cursor = getContentResolver().query(selectedImage,
+                    filePathColumn, null, null, null);
+            cursor.moveToFirst();
+
+            int columnIndex = cursor.getColumnIndex(filePathColumn[0]);
+            String picturePath = cursor.getString(columnIndex);
+            cursor.close();
+
+            img = (ImageView) findViewById(R.id.imageView1);
+            img.setImageBitmap(bitmap);
+            underView.setImageBitmap(bitmap);
+            Draw1.bringToFront();
+            Draw1.rawImg = bitmap;
+            Draw1.resultMap = bitmap;
+            Draw1.imageView = img;
+        }
     }
     /**
      * 收缩图片

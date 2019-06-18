@@ -253,6 +253,7 @@ public class DrawView  extends View{
         Mat img = new Mat();
         Utils.bitmapToMat(cropBitmap(mBitmap), img);
         Imgproc.cvtColor(img, img, Imgproc.COLOR_RGBA2GRAY);
+        System.out.println(img.toString());
 //        Mat source = new Mat(1, 1, CvType.CV_8UC1, new Scalar(Imgproc.GC_PR_BGD));
 //        Core.compare(firstMask, source, firstMask, Core.CMP_EQ);
         Imgproc.grabCut(rawImageMat, img, rect, bgModel, fgModel,1, Imgproc.GC_INIT_WITH_MASK);
@@ -267,7 +268,9 @@ public class DrawView  extends View{
         Matrix matrix = new Matrix();
         matrix.preScale(ratio, ratio);
         Bitmap correctRatioMap = Bitmap.createBitmap(bitmap,0,0,bitmap.getWidth(),bitmap.getHeight(), matrix, false);
-        return correctRatioMap;
+        int newX = Math.abs(rawImg.getWidth()-correctRatioMap.getWidth())/2;
+        Bitmap finalMap = Bitmap.createBitmap(correctRatioMap, newX, 0, rawImg.getWidth(),correctRatioMap.getHeight(), null, false);
+        return finalMap;
         //        double wVSh = (double) rawImg.getWidth()/(double) rawImg.getHeight();
 
 //        int w = bitmap.getWidth(); // 得到图片的宽，高
