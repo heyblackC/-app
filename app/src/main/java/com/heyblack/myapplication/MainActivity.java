@@ -1,6 +1,8 @@
 package com.heyblack.myapplication;
 
+import android.Manifest;
 import android.content.Intent;
+import android.content.pm.PackageManager;
 import android.database.Cursor;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
@@ -10,8 +12,10 @@ import android.os.Bundle;
 import android.os.Environment;
 import android.os.Handler;
 import android.os.Message;
-import android.provider.MediaStore;
+import android.support.v4.app.ActivityCompat;
+import android.support.v4.content.ContextCompat;
 import android.support.v7.app.AlertDialog;
+import android.provider.MediaStore;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
 import android.util.Base64;
@@ -52,6 +56,7 @@ public class MainActivity extends AppCompatActivity {
     String filepath;
 
     String interPath = "/data/data/com.heyblack.myapplication/ImgStorage";
+    String exterPath;
 
     //风格化处理等待提示框、完成提示
     AlertDialog waitMsg,finishMsg;
@@ -84,6 +89,7 @@ public class MainActivity extends AppCompatActivity {
 
         //图版初始化、设置等操作
         inite();
+
 
 
     }
@@ -160,12 +166,6 @@ public class MainActivity extends AppCompatActivity {
             public void onClick(View v) {
                 // TODO Auto-generated method stub
                 img = (ImageView) findViewById(R.id.imageView1);
-                img.setImageBitmap(bitmap);
-                underView.setImageBitmap(bitmap);
-                Draw1.bringToFront();
-                Draw1.rawImg = bitmap;
-                Draw1.resultMap = bitmap;
-                Draw1.imageView = img;
 
                 Intent i = new Intent(
                         Intent.ACTION_PICK,
@@ -399,15 +399,54 @@ public class MainActivity extends AppCompatActivity {
             String picturePath = cursor.getString(columnIndex);
             cursor.close();
 
-            img = (ImageView) findViewById(R.id.imageView1);
-            img.setImageBitmap(bitmap);
-            underView.setImageBitmap(bitmap);
-            Draw1.bringToFront();
-            Draw1.rawImg = bitmap;
-            Draw1.resultMap = bitmap;
-            Draw1.imageView = img;
+            exterPath = picturePath;
+
+            //使用兼容库就无需判断系统版本
+            int hasWriteStoragePermission = ContextCompat.checkSelfPermission(getApplication(), Manifest.permission.READ_EXTERNAL_STORAGE);
+            if (hasWriteStoragePermission == PackageManager.PERMISSION_GRANTED) {
+
+                bitmap = BitmapFactory.decodeFile(exterPath);
+                img = (ImageView) findViewById(R.id.imageView1);
+                img.setImageBitmap(bitmap);
+                underView.setImageBitmap(bitmap);
+                Draw1.bringToFront();
+                Draw1.rawImg = bitmap;
+                Draw1.resultMap = bitmap;
+                Draw1.imageView = img;
+
+            }else{
+                //没有权限，向用户请求权限
+                ActivityCompat.requestPermissions(this, new String[]{Manifest.permission.READ_EXTERNAL_STORAGE}, 100);
+            }
+
+
         }
     }
+
+    @Override
+    public void onRequestPermissionsResult(int requestCode, String[] permissions, int[] grantResults) {
+
+        switch (requestCode) {
+            case 100: {
+                // If request is cancelled, the result arrays are empty.
+                if (grantResults.length > 0
+                        && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
+
+                    bitmap = BitmapFactory.decodeFile(exterPath);
+                    img = (ImageView) findViewById(R.id.imageView1);
+                    img.setImageBitmap(bitmap);
+                    underView.setImageBitmap(bitmap);
+                    Draw1.bringToFront();
+                    Draw1.rawImg = bitmap;
+                    Draw1.resultMap = bitmap;
+                    Draw1.imageView = img;
+
+                }
+            }
+        }
+
+    }
+
     /**
      * 收缩图片
      *
