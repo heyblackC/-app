@@ -1,10 +1,7 @@
 package com.heyblack.myapplication;
 
 import android.content.Context;
-import android.graphics.Bitmap;
-import android.graphics.Canvas;
-import android.graphics.Color;
-import android.graphics.Paint;
+import android.graphics.*;
 import android.graphics.PorterDuff.Mode;
 import android.util.AttributeSet;
 import android.util.Log;
@@ -13,8 +10,12 @@ import android.view.View;
 import android.widget.ImageView;
 import org.opencv.android.OpenCVLoader;
 import org.opencv.android.Utils;
+import org.opencv.core.Point;
+import org.opencv.core.Rect;
 import org.opencv.core.*;
 import org.opencv.imgproc.Imgproc;
+
+import java.util.Map;
 
 /**
  * 画板视图
@@ -35,7 +36,10 @@ public class DrawView  extends View{
     public ImageView imageView;
     private boolean isTouchEnd = false;
     public boolean dummy=false;
-
+    private Mat rawImageMat;
+    private Mat bgModel;
+    private Mat fgModel;
+    private Rect rect;
 
 
     public DrawView(Context context, AttributeSet attrs) {
@@ -57,7 +61,7 @@ public class DrawView  extends View{
     private void inite(){
         paint = new Paint();
         paint.setFlags(Paint.ANTI_ALIAS_FLAG);
-        paint.setColor(Color.BLACK);
+        paint.setColor(Color.RED);
         paint.setStrokeWidth(5);
         mCanvas = new Canvas();
         mCanvas.drawColor(Color.TRANSPARENT,Mode.CLEAR); // 清屏幕
@@ -217,14 +221,15 @@ public class DrawView  extends View{
     private Bitmap beginGrabcut(Bitmap bitmap, double beginX, double beginY, double endX, double endY)
     {
         Mat img = new Mat();
-        Rect rect = new Rect(new Point(beginX, beginY), new Point(endX, endY));
+        rect = new Rect(new Point(beginX, beginY), new Point(endX, endY));
 
         Utils.bitmapToMat(bitmap, img);
         Imgproc.cvtColor(img, img, Imgproc.COLOR_RGBA2RGB);
+        rawImageMat = img;
 
         //生成遮板
-        Mat bgModel = new Mat();
-        Mat fgModel = new Mat();
+        bgModel = new Mat();
+        fgModel = new Mat();
         Mat source = new Mat(1, 1, CvType.CV_8U, new Scalar(Imgproc.GC_PR_FGD));
         Imgproc.grabCut(img, firstMask, rect,bgModel, fgModel,1, Imgproc.GC_INIT_WITH_RECT);
         Core.compare(firstMask, source, firstMask, Core.CMP_EQ);
@@ -238,6 +243,46 @@ public class DrawView  extends View{
         Utils.matToBitmap(foreground,b);
 
         return b;
+    }
+
+    public void beginManualOperate()
+    {
+//        int width = mBitmap.getWidth();
+//        int height = mBitmap.getHeight();
+//        mBitmap.getPixel()
+        Mat img = new Mat();
+        Utils.bitmapToMat(cropBitmap(mBitmap), img);
+        Imgproc.cvtColor(img, img, Imgproc.COLOR_RGBA2GRAY);
+//        Mat source = new Mat(1, 1, CvType.CV_8UC1, new Scalar(Imgproc.GC_PR_BGD));
+//        Core.compare(firstMask, source, firstMask, Core.CMP_EQ);
+        Imgproc.grabCut(rawImageMat, img, rect, bgModel, fgModel,1, Imgproc.GC_INIT_WITH_MASK);
+
+        System.out.println("0");
+
+    }
+
+    private Bitmap cropBitmap(Bitmap bitmap) {
+        // TODO
+        float ratio = (float) rawImg.getHeight()/(float) getHeight();
+        double wVSh = (double) rawImg.getWidth()/(double) rawImg.getHeight();
+        int w = bitmap.getWidth(); // 得到图片的宽，高
+        int h = bitmap.getHeight();
+        Matrix matrix = new Matrix();
+        matrix.preScale(ratio, ratio);
+        return Bitmap.createBitmap(bitmap, (int)(getWidth()- getHeight()*wVSh)/2, 0, rawImg.getWidth(), rawImg.getHeight(), matrix, false);
+    }
+
+    public void getPoint(Map<String,String> params) {
+
+        double ratio = (double) rawImg.getWidth()/(double) rawImg.getHeight();
+        double tranStartX = startX - (getWidth()- getHeight()*ratio)/2.0;
+        double tranEndX = stopX - (getWidth()- getHeight()*ratio)/2.0;
+
+        params.put("startX",String.valueOf(tranStartX/((double)getHeight()/(double)rawImg.getHeight())));
+        params.put("startY",String.valueOf(startY/((double)getHeight()/(double)rawImg.getHeight())));
+        params.put("endX",String.valueOf(tranEndX/((double)getHeight()/(double)rawImg.getHeight())));
+        params.put("endY",String.valueOf(stopY/((double)getHeight()/(double)rawImg.getHeight())));
+
     }
 
 }

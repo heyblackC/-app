@@ -1,14 +1,19 @@
 package com.heyblack.myapplication;
 
 import android.content.DialogInterface;
+import android.content.Intent;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
+import android.graphics.Camera;
 import android.graphics.Color;
+import android.net.Uri;
 import android.os.Bundle;
 import android.os.Environment;
 import android.os.Handler;
 import android.os.Message;
 import android.support.v7.app.AlertDialog;
+import android.os.StrictMode;
+import android.provider.MediaStore;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
 import android.util.Base64;
@@ -39,8 +44,13 @@ public class MainActivity extends AppCompatActivity {
     private Button btn5 = null;
     private Button btn6 = null;
     private Button confirmBtn = null;
+    private Button onlineCut = null;
     private ImageView underView = null;
-    public Bitmap bitmap=BitmapFactory.decodeStream(getClass().getResourceAsStream("/res/drawable/l58.png"));
+    private int countNum = 0;
+    public Bitmap bitmap=BitmapFactory.decodeStream(getClass().getResourceAsStream("/res/drawable/test.png"));
+
+    private int mode = 0;
+
 
     ImageView img;
     String path;
@@ -124,6 +134,24 @@ public class MainActivity extends AppCompatActivity {
         }
     };
 
+    //用来处理在线graphCut的返回
+    Handler handler2 = new Handler() {
+
+        @Override
+        public void handleMessage(Message msg) {
+            super.handleMessage(msg);
+            Bundle data = msg.getData();
+            String val = data.getString("value");
+            // UI界面的更新等相关操作
+            Draw1.resultMap = base64ToBitmap(val);
+            if (Draw1.imageView != null) {
+
+                Draw1.imageView.setImageBitmap(Draw1.resultMap);
+
+            }
+        }
+    };
+
 
     private void inite(){
         Draw1=(DrawView)findViewById(R.id.writting);
@@ -144,6 +172,13 @@ public class MainActivity extends AppCompatActivity {
                 Draw1.imageView = img;
 
                 //getPhoto();
+
+                //if(countNum==2){
+                //   countNum=0;
+                //    getPhoto1();
+                //}else {
+                //    countNum++;
+                //}
             }
         });
 
@@ -185,8 +220,9 @@ public class MainActivity extends AppCompatActivity {
             @Override
             public void onClick(View v) {
                 // TODO Auto-generated method stub
-                Draw1.setcolor(Color.BLACK);
+                Draw1.setcolor(Color.RED);
                 Draw1.changeSta(2);
+                mode = 0;
             }
         });
 
@@ -195,7 +231,46 @@ public class MainActivity extends AppCompatActivity {
 
             @Override
             public void onClick(View v) {
-                Draw1.onDrawImage();
+                //开始切图
+                switch (mode)
+                {
+                    case 0:
+                        final String url = "http://120.79.67.94/demo.php";
+                        final Map<String,String> params = new HashMap<>();
+                        Draw1.getPoint(params);
+
+                        new Thread(new Runnable() {//创建子线程
+                            @Override
+                            public void run() {
+                                NetWork netWork = new NetWork();
+                                netWork.getwebinfo(url,params,handler2);//把路径选到MainActivity中
+                            }
+                        }).start();//启动子线程
+                        break;
+                    case 1:
+                        Draw1.beginManualOperate();
+                        break;
+                }
+            }
+        });
+
+        onlineCut = findViewById(R.id.onlineCut);
+        onlineCut.setOnClickListener(new View.OnClickListener() {
+
+            @Override
+            public void onClick(View v) {
+
+
+
+                //开始切图
+                switch (mode)
+                {
+                    case 0:
+                        Draw1.onDrawImage();
+                        break;
+                    case 1:
+                        break;
+                }
             }
         });
 
@@ -207,6 +282,7 @@ public class MainActivity extends AppCompatActivity {
                 // TODO Auto-generated method stub
                 Draw1.setcolor(Color.BLACK);
                 Draw1.changeSta(0);
+                mode = 1;
             }
         });
         btn5 = (Button)findViewById(R.id.button5);
@@ -215,8 +291,9 @@ public class MainActivity extends AppCompatActivity {
             @Override
             public void onClick(View v) {
                 // TODO Auto-generated method stub
-                Draw1.setcolor(Color.GRAY);
+                Draw1.setcolor(Color.WHITE);
                 Draw1.changeSta(0);
+                mode = 1;
             }
         });
         btn6 = (Button)findViewById(R.id.button6);
@@ -250,6 +327,82 @@ public class MainActivity extends AppCompatActivity {
             System.err.println("<<<<<<<<<<<<<404 Not Find");//控制台输出没找到图片
         }
     }
+
+    private void getPhoto1(){
+        Intent intent2 = new Intent(Intent.ACTION_PICK, null);
+        intent2.setDataAndType(MediaStore.Images.Media.EXTERNAL_CONTENT_URI, "image/*");
+        //intent2.putExtra(MediaStore.EXTRA_OUTPUT, Uri.fromFile(new File(Environment.getExternalStorageDirectory()+change_path
+        //        ,"temp.jpg")));
+        startActivityForResult(intent2, 2);
+        Uri data = intent2.getData();
+        if (data != null) {
+            //Draw1.setImageURI(data);
+            //underView.setImageURI(data);
+            //startPhotoZoom(intent2.getData());
+
+            Bundle extras = intent2.getExtras();
+
+                Bitmap photo = extras.getParcelable("data");
+                ByteArrayOutputStream stream = new ByteArrayOutputStream();
+                img.setImageBitmap(photo); //把图片显示在ImageView控件上
+
+        }
+    }
+
+    protected void onActivityResult(int requestCode, int resultCode, Intent data) {
+        if (resultCode == 0)
+            return;
+        // 拍照
+        if (requestCode == 1) {
+            // 设置文件保存路径
+            String change_path = "";
+            String filePath = Environment.getExternalStorageDirectory()+change_path;
+            File localFile = new File(filePath);
+            if (!localFile.exists()) {
+                localFile.mkdir();
+            }
+            File picture = new File(Environment.getExternalStorageDirectory()+change_path
+                    + "/temp.jpg");
+            startPhotoZoom(Uri.fromFile(picture));
+        }
+        if (data == null)
+            return;
+        // 读取相册缩放图片
+        if (requestCode == 1) {
+            startPhotoZoom(data.getData());
+        }
+        // 处理结果
+        if (requestCode == 2) {
+            Bundle extras = data.getExtras();
+            if (extras != null) {
+                Bitmap photo = extras.getParcelable("data");
+                ByteArrayOutputStream stream = new ByteArrayOutputStream();
+                photo.compress(Bitmap.CompressFormat.JPEG, 75, stream);// (0-100)压缩文件
+                //此处可以把Bitmap保存到sd卡中
+                img.setImageBitmap(photo); //把图片显示在ImageView控件上
+            }
+        }
+        super.onActivityResult(requestCode, resultCode, data);
+    }
+    /**
+     * 收缩图片
+     *
+     * @param uri
+     */
+    public void startPhotoZoom(Uri uri) {
+        Intent intent = new Intent("com.android.camera.action.CROP");
+        intent.setDataAndType(uri, "image/*");
+        intent.putExtra("crop", "true");
+        // aspectX aspectY 是宽高的比例
+        intent.putExtra("aspectX", 1);
+        intent.putExtra("aspectY", 1);
+        // outputX outputY 是裁剪图片宽高
+        intent.putExtra("outputX", 300);
+        intent.putExtra("outputY", 500);
+        intent.putExtra("return-data", true);
+        startActivityForResult(intent, 3);
+    }
+
 
     /**
      * 将Bitmap转换成Base64
