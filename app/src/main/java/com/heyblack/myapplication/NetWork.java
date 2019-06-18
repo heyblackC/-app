@@ -26,7 +26,8 @@ public class NetWork {
 
         String str = "";
 
-        byte[] data = getRequestData(params, "utf-8").toString().getBytes();//获得请求体
+        String dataString = getRequestData(params, "utf-8").toString();
+        byte[] data = dataString.getBytes();//获得请求体
 
         // 在这里进行 http request.网络请求相关操作
         try{

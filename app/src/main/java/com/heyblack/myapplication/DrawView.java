@@ -286,10 +286,10 @@ public class DrawView  extends View{
         double tranStartX = startX - (getWidth()- getHeight()*ratio)/2.0;
         double tranEndX = stopX - (getWidth()- getHeight()*ratio)/2.0;
 
-        params.put("startX",String.valueOf(tranStartX/((double)getHeight()/(double)rawImg.getHeight())));
-        params.put("startY",String.valueOf(startY/((double)getHeight()/(double)rawImg.getHeight())));
-        params.put("endX",String.valueOf(tranEndX/((double)getHeight()/(double)rawImg.getHeight())));
-        params.put("endY",String.valueOf(stopY/((double)getHeight()/(double)rawImg.getHeight())));
+        params.put("startX",String.valueOf((int)(tranStartX/((double)getHeight()/(double)rawImg.getHeight()))));
+        params.put("startY",String.valueOf((int)(startY/((double)getHeight()/(double)rawImg.getHeight()))));
+        params.put("endX",String.valueOf((int)(tranEndX/((double)getHeight()/(double)rawImg.getHeight()))));
+        params.put("endY",String.valueOf((int)(stopY/((double)getHeight()/(double)rawImg.getHeight()))));
 
     }
 
